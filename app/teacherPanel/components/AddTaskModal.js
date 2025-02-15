@@ -1,13 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ChevronDown, Plus } from 'lucide-react';
 
 const AddTaskModal = ({ onAddTask, selectedSubject }) => {
     const [showDropdown, setShowDropdown] = useState(false);
+    const dropdownRef = useRef(null);
     const taskTypes = ['ISE1', 'ISE2', 'MSE'];
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setShowDropdown(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     const handleTaskSelect = (type) => {
         if (!selectedSubject) {
-            alert('Please select a subject first');
+            alert('Please select all options');
             return;
         }
         onAddTask(type);
@@ -15,7 +29,7 @@ const AddTaskModal = ({ onAddTask, selectedSubject }) => {
     };
 
     return (
-        <div className="relative">
+        <div className="relative" ref={dropdownRef}>
             <button
                 className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                 onClick={() => setShowDropdown(!showDropdown)}

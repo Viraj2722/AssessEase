@@ -1,9 +1,11 @@
-import React from 'react'
+"use client"
+import TeacherDashboard from "./components/TeacherDashboard"
 
-const page = () => {
+export default function TeacherDashboardPage() {
     return (
-        <div>teacher-dashboard</div>
+        <div className="min-h-screen bg-sky-100 p-4">
+            <TeacherDashboard />
+        </div>
     )
 }
 
-export default page
