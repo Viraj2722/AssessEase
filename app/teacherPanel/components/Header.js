@@ -1,5 +1,7 @@
+"use client"
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, LogOut } from 'lucide-react';
+import { useRouter } from "next/navigation";
 import { semesterSubjects, yearClasses, years } from '../data/constants';
 
 const Header = ({
@@ -16,11 +18,14 @@ const Header = ({
     const [showClassDropdown, setShowClassDropdown] = useState(false);
     const [availableSubjects, setAvailableSubjects] = useState([]);
     const [availableClasses, setAvailableClasses] = useState([]);
+    const router = useRouter();
 
     useEffect(() => {
         if (selectedSemester) {
             const semesterNumber = parseInt(selectedSemester.split(' ')[2]);
             setAvailableSubjects(semesterSubjects[semesterNumber] || []);
+            onSubjectSelect(''); // Reset subject when semester changes
+            onClassSelect(''); // Reset class when semester changes
         }
     }, [selectedSemester]);
 
@@ -40,11 +45,17 @@ const Header = ({
     const handleSubjectSelect = (subject) => {
         onSubjectSelect(subject);
         setShowSubjectDropdown(false);
+        onClassSelect(''); // Reset class when subject changes
     };
 
     const handleClassSelect = (className) => {
         onClassSelect(className);
         setShowClassDropdown(false);
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem("user");
+        router.push("/login");
     };
 
     return (
@@ -53,7 +64,7 @@ const Header = ({
                 {/* Semester Dropdown */}
                 <div className="relative">
                     <button
-                        className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                        className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={() => setShowSemesterDropdown(!showSemesterDropdown)}
                     >
                         {selectedSemester || 'Semester'} <ChevronDown size={16} />
@@ -81,8 +92,9 @@ const Header = ({
                 {/* Subject Dropdown */}
                 <div className="relative">
                     <button
-                        className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                        className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={() => setShowSubjectDropdown(!showSubjectDropdown)}
+                        disabled={!selectedSemester}
                     >
                         {selectedSubject || 'Subject'} <ChevronDown size={16} />
                     </button>
@@ -104,8 +116,9 @@ const Header = ({
                 {/* Class Dropdown */}
                 <div className="relative">
                     <button
-                        className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                        className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={() => setShowClassDropdown(!showClassDropdown)}
+                        disabled={!selectedSemester || !selectedSubject}
                     >
                         {selectedClass || 'Class'} <ChevronDown size={16} />
                     </button>
@@ -126,7 +139,7 @@ const Header = ({
             </div>
 
             <button
-                onClick={onLogout}
+                onClick={handleLogout}
                 className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
             >
                 <LogOut size={16} /> Logout
