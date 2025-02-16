@@ -5,10 +5,10 @@ const Sidebar = () => {
         <aside className="w-64 bg-white rounded-xl border border-gray-200 p-5 h-screen sticky top-4">
             <h2 className="text-xl font-semibold text-blue-500 mb-6">Student Panel</h2>
             <nav className="flex flex-col space-y-2">
-                <a href="/studentDashboard" className="px-4 py-2 bg-blue-500 text-white rounded">
+                <a href="/studentDashboard" className="px-4 py-2 text-gray-500 rounded hover:bg-gray-100">
                     Dashboard
                 </a>
-                <a href="/studentPanel" className="px-4 py-2 text-gray-500 rounded hover:bg-gray-100 active">
+                <a href="/studentPanel" className="px-4 py-2 bg-blue-500 text-white rounded">
                     Panel
                 </a>
             </nav>
