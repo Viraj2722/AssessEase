@@ -1,9 +1,8 @@
-import React from 'react'
+import React from "react";
+import StudentPanel from "./components/FPage";
 
-const page = () => {
-    return (
-        <div>student-panel</div>
-    )
-}
+const Page = () => {
+  return <StudentPanel />;
+};
 
-export default page
+export default Page;

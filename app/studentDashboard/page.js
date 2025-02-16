@@ -1,9 +1,8 @@
-import React from 'react'
+import React from "react";
+import StudentDashboard from "./components/FPage";
 
-const page = () => {
-    return (
-        <div>student-dashboard</div>
-    )
-}
+const StudentDashboardPage = () => {
+  return <StudentDashboard />;
+};
 
-export default page
+export default StudentDashboardPage;
