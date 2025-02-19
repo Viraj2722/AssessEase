@@ -15,32 +15,3 @@ export function useAddTaskMutation() {
     retry: false,
   });
 }
-
-// export function useUpdatePulpMutation() {
-//   return useMutation({
-//     mutationKey: ["updatePulp"],
-//     mutationFn: async (data) => {
-//       return (
-//         await axios.patch(API_URL, data, {
-//           headers: { "Content-Type": "application/json" },
-//         })
-//       ).data;
-//     },
-//     retry: false,
-//   });
-// }
-
-// export function useDeletePulpMutation() {
-//   return useMutation({
-//     mutationKey: ["deletePulp"],
-//     mutationFn: async (data) => {
-//       return (
-//         await axios.delete(API_URL, {
-//           headers: { "Content-Type": "application/json" },
-//           data,
-//         })
-//       ).data;
-//     },
-//     retry: false,
-//   });
-// }
