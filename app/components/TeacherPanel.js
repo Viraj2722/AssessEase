@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import Header from './Header';
+import Header from './TPHeader';
 import AddTaskModal from './AddTaskModal';
 import TaskList from './TaskList';
 import PdfModal from './PdfModal';
+import Sidebar from './TSidebar';
 import { FileSpreadsheet } from 'lucide-react';
+import { useAddTaskMutation } from '../services/mutations';
 
 const TeacherPanel = () => {
     const [selectedSemester, setSelectedSemester] = useState('');
@@ -13,7 +15,10 @@ const TeacherPanel = () => {
     const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
     const [currentTaskType, setCurrentTaskType] = useState(null);
 
+    const mutation = useAddTaskMutation();
+
     const handleAddTask = (taskType) => {
+        mutation.mutateAsync();
         const newTask = {
             id: Date.now(),
             type: taskType,
@@ -59,18 +64,7 @@ const TeacherPanel = () => {
     return (
         <div className="min-h-screen bg-[#caf0f8]">
             <div className="flex min-h-screen p-4 gap-4">
-                {/* Sidebar */}
-                <div className="w-64 bg-white rounded-lg p-5 h-screen sticky top-4">
-                    <h2 className="text-xl font-semibold text-blue-500 mb-6">Teacher Panel</h2>
-                    <nav className="flex flex-col space-y-2">
-                        <a href="/teacherDashboard" className="px-4 py-2 text-gray-500 rounded hover:bg-gray-100">
-                            Dashboard
-                        </a>
-                        <a href="/teacherPanel" className="px-4 py-2 bg-blue-500 text-white rounded">
-                            Panel
-                        </a>
-                    </nav>
-                </div>
+                <Sidebar />
 
                 {/* Main Content */}
                 <div className="flex-1 bg-white rounded-lg p-5">

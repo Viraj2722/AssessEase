@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_URL } from "@/app/lib/utils";
+import { API_URL } from "../lib/utils";
 import { useMutation } from "@tanstack/react-query";
 
 export function useAddTaskMutation() {

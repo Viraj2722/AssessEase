@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Header from './Header';
-import Sidebar from './Sidebar';
+import Sidebar from './TSidebar';
 import SelectionDropdowns from './SelectionDropdowns';
 import CirclePlaceholder from './CirclePlaceholder';
 

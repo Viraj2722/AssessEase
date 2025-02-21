@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { semesterSubjects, yearClasses, years } from '../../teacherPanel/data/constants';
+import { semesterSubjects, yearClasses, years } from '../data/constants';
 
 const SelectionDropdowns = ({
     selectedSemester,

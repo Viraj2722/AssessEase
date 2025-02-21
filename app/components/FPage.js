@@ -1,8 +1,8 @@
-"use client"; // Add this at the top
+"use client";
 import React, { useState } from "react";
-import Sidebar from "./Sidebar";  // Corrected path
-import Header from "./Header";  
-import StudentInfo from "./StudentInfo"; 
+import Sidebar from "./Sidebar";
+import Header from "./Header";
+import StudentInfo from "./StudentInfo";
 
 const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");

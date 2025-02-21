@@ -1,5 +1,5 @@
 "use client"
-import TeacherPanel from "./components/TeacherPanel"
+import TeacherPanel from "../components/TeacherPanel"
 
 export default function TeacherPanelPage() {
     return (

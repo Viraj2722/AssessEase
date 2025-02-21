@@ -1,5 +1,5 @@
 import React from "react";
-import StudentPanel from "./components/FPage";
+import StudentPanel from "../components/SPFPage";
 
 const Page = () => {
   return <StudentPanel />;
