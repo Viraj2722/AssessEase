@@ -4,8 +4,15 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-const Sidebar = () => {
+const StudentSidebar = () => {
     const pathname = usePathname();
+
+    const getTitle = () => {
+        if (pathname === '/studentPanel') {
+            return 'Student Panel';
+        }
+        return 'Student Dashboard';
+    };
 
     return React.createElement('aside', {
         className: 'w-64 bg-white rounded-xl border border-gray-200 p-5 h-screen sticky top-4'
@@ -13,7 +20,7 @@ const Sidebar = () => {
         React.createElement('h2', {
             className: 'text-xl font-semibold text-blue-500 mb-6',
             key: 'title'
-        }, 'Student Dashboard'),
+        }, getTitle()),
         React.createElement('nav', {
             className: 'flex flex-col space-y-2',
             key: 'nav'
@@ -38,4 +45,4 @@ const Sidebar = () => {
     ]);
 };
 
-export default Sidebar;
+export default StudentSidebar;
