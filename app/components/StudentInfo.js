@@ -1,13 +1,13 @@
 import React from "react";
 
-const StudentInfo = () => {
+const StudentInfo = ({ studentData }) => {
   const studentDetails = [
-    { label: "Student Name", value: "John Doe" },
-    { label: "Roll Number", value: "26" },
-    { label: "Class", value: "TE CMPN-B" },
-    { label: "Academic Year", value: "2024-2025" },
-    { label: "Contact Number", value: "+1 234 567 8900" },
-    { label: "Email", value: "john.doe@example.com" },
+    { label: "Student Name", value: studentData?.users?.fullName || "N/A" },
+    { label: "Roll Number", value: studentData?.students?.rollNumber || "N/A" },
+    { label: "Class", value: `${studentData?.students?.currentYear} ${studentData?.students?.division}` || "N/A" },
+    { label: "Academic Year", value: studentData?.students?.academicYear || "N/A" },
+    { label: "Contact Number", value: studentData?.users?.contactNumber || "N/A" },
+    { label: "Email", value: studentData?.users?.email || "N/A" },
   ];
 
   return (

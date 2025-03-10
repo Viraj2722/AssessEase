@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 
-const Header = () => {
+const Header = ({ onStatusChange }) => {
     const router = useRouter()
-    const [selectedTask, setSelectedTask] = useState("Tasks")
+    const [selectedTask, setSelectedTask] = useState("Pending")
     const [isOpen, setIsOpen] = useState(false)
     const dropdownRef = useRef(null)
 
@@ -12,11 +12,12 @@ const Header = () => {
         router.push("/login")
     }
 
-    const toggleDropdown = () => setIsOpen(!isOpen)
-
     const handleSelectTask = (task) => {
         setSelectedTask(task)
         setIsOpen(false)
+        // Convert to lowercase for API consistency
+        const status = task.toLowerCase()
+        onStatusChange(status)
     }
 
     useEffect(() => {
@@ -35,7 +36,7 @@ const Header = () => {
             <div className="flex justify-between w-full">
                 <div className="relative" ref={dropdownRef}>
                     <button
-                        onClick={toggleDropdown}
+                        onClick={() => setIsOpen(!isOpen)}
                         className="flex gap-2 items-center bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                     >
                         {selectedTask}
@@ -44,15 +45,14 @@ const Header = () => {
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
                         >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
                     {isOpen && (
                         <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                            <div className="py-1" role="menu" aria-orientation="vertical">
-                                {["Pending", "Completed"].map(task => (
+                            <div className="py-1" role="menu">
+                                {["Pending", "Submitted"].map(task => (
                                     <div
                                         key={task}
                                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"

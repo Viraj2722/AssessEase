@@ -15,7 +15,7 @@ export function useGetStudentDashboardQuery(userId) {
 
 export function useGetStudentTasksQuery(status, studentId) {
   return useQuery({
-    queryKey: ["getStudentTasks"],
+    queryKey: ["getStudentTasks", status, studentId],
     queryFn: async () => {
       return (await axios.get(`${API_URL}/student/tasks/${status}?studentId=${studentId}`)).data;
     },
@@ -23,7 +23,6 @@ export function useGetStudentTasksQuery(status, studentId) {
     retry: false,
   });
 }
-
 export function useGetTeacherDashboardQuery(semester, subjectId, division, taskId) {
   return useQuery({
     queryKey: ["getTeacherDashboard", semester, subjectId, division, taskId],

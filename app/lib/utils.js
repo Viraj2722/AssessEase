@@ -1,3 +1,3 @@
-const API_URL = "https://aaa-backend.dedomil.workers.dev";
+const API_URL = "http://127.0.0.1:8787";
 
 module.exports = { API_URL };
