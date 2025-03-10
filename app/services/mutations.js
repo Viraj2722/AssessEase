@@ -15,3 +15,22 @@ export function useAddTaskMutation() {
     retry: false,
   });
 }
+export function useUploadSubmissionMutation() {
+  return useMutation({
+    mutationKey: ["uploadSubmission"],
+    mutationFn: async ({ file, taskId, studentId }) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("taskId", taskId);
+      formData.append("studentId", studentId);
+
+      return (
+        await axios.post(`${API_URL}/student/submission/upload`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+      ).data;
+    },
+  });
+}
