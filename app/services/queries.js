@@ -38,13 +38,14 @@ export function useGetTeacherStudentsListQuery(semester, subjectId, division, ta
   return useQuery({
     queryKey: ["getTeacherStudentsList", semester, subjectId, division, taskId],
     queryFn: async () => {
-      return (await axios.get(`${API_URL}/teacher/students-list?semester=${semester}&subjectId=${subjectId}&division=${division}&taskId=${taskId}`)).data;
+      if (!semester || !subjectId || !division || !taskId) return null;
+      return (await axios.get(
+        `${API_URL}/teacher/students-list?semester=${semester}&subjectId=${subjectId}&division=${division}&taskId=${taskId}`
+      )).data;
     },
-    refetchOnWindowFocus: true,
-    retry: false,
+    enabled: Boolean(semester && subjectId && division && taskId)
   });
 }
-
 export function useGetTeacherReportQuery(teacherSubjectId) {
   return useQuery({
     queryKey: ["getTeacherReport", teacherSubjectId],
@@ -64,5 +65,22 @@ export function useGetStudentFileQuery(key) {
     },
     refetchOnWindowFocus: false,
     retry: false,
+  });
+}
+
+
+export function useGetTeacherTasksQuery(semester, subjectId, division) {
+
+  
+  return useQuery({
+    queryKey: ["getTeacherTasks", semester, subjectId, division],
+    queryFn: async () => {
+      if (!semester || !subjectId || !division) return [];
+      
+      return (await axios.get(
+        `${API_URL}/teacher/tasks?semester=${semester}&subjectId=${subjectId}&division=${division}`
+      )).data;
+    },
+    enabled: Boolean(semester && subjectId && division)
   });
 }

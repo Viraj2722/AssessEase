@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './TPHeader';
 import AddTaskModal from './AddTaskModal';
 import TaskList from './TaskList';
@@ -6,6 +6,7 @@ import PdfModal from './PdfModal';
 import Sidebar from './TSidebar';
 import { FileSpreadsheet } from 'lucide-react';
 import { useAddTaskMutation } from '../services/mutations';
+import { useGetTeacherTasksQuery } from '../services/queries';
 
 const TeacherPanel = () => {
     const [selectedSemester, setSelectedSemester] = useState('');
@@ -17,15 +18,54 @@ const TeacherPanel = () => {
 
     const mutation = useAddTaskMutation();
 
-    const handleAddTask = (taskType) => {
-        mutation.mutateAsync();
-        const newTask = {
-            id: Date.now(),
-            type: taskType,
-            name: `${taskType} - ${selectedSubject}`,
-            date: new Date().toISOString().split('T')[0],
+    const getSemesterNumber = (semesterText) => {
+        const match = semesterText.match(/\d+$/);
+        return match ? parseInt(match[0]) : null;
+    };
+
+    const getDivisionLetter = (divisionText) => {
+        const match = divisionText.match(/[A-Z]$/);
+        return match ? match[0] : null;
+    };
+
+   
+    const { data: taskData, isLoading } = useGetTeacherTasksQuery(
+        selectedSemester ? getSemesterNumber(selectedSemester) : null,
+        'sub_1',
+        selectedClass ? getDivisionLetter(selectedClass) : null
+    );
+    useEffect(() => {
+        if (taskData?.data) {
+            setTasks(taskData.data);
+        }
+    }, [taskData]);
+
+    const handleAddTask = async (taskType) => {
+        const taskData = {
+            teacherSubjectId: "ts_1",
+            semester: getSemesterNumber(selectedSemester),
+            taskType: taskType,
+            title: selectedSubject,
+            dueDate: new Date().toISOString(),
+            totalMarks: 20,
+            division: getDivisionLetter(selectedClass)
         };
-        setTasks([...tasks, newTask]);
+
+        try {
+            const response = await mutation.mutateAsync(taskData);
+            const newTask = {
+                id: response.task.id,
+                type: taskType,
+                name: selectedSubject,
+                date: new Date().toISOString().split('T')[0],
+                totalMarks: 20,
+                division: selectedClass,
+                semester: selectedSemester
+            };
+            setTasks([...tasks, newTask]);
+        } catch (error) {
+            console.error("Failed to add task:", error);
+        }
     };
 
     const handleEditTask = (taskId, updatedTask) => {
@@ -65,8 +105,6 @@ const TeacherPanel = () => {
         <div className="min-h-screen bg-[#caf0f8]">
             <div className="flex min-h-screen p-4 gap-4">
                 <Sidebar />
-
-                {/* Main Content */}
                 <div className="flex-1 bg-white rounded-lg p-5">
                     <Header
                         selectedSemester={selectedSemester}
@@ -78,26 +116,35 @@ const TeacherPanel = () => {
                         onLogout={handleLogout}
                     />
 
-                    <div className="flex justify-between items-center mt-6 pb-4 border-b">
-                        <AddTaskModal
-                            onAddTask={handleAddTask}
-                            selectedSubject={selectedSubject}
-                        />
-                        <button
-                            onClick={handleIntegrateExcel}
-                            className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                        >
-                            <FileSpreadsheet size={16} /> Integrate Excel
-                        </button>
-                    </div>
+                    {isLoading ? (
+                        <div>Loading tasks...</div>
+                    ) : (
+                        <>
+                            <div className="flex justify-between items-center mt-6 pb-4 border-b">
+                                <AddTaskModal
+                                    onAddTask={handleAddTask}
+                                    selectedSubject={selectedSubject}
+                                    disabled={!selectedSemester || !selectedClass}
+                                />
+                                <button
+                                    onClick={handleIntegrateExcel}
+                                    className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                                >
+                                    <FileSpreadsheet size={16} /> Integrate Excel
+                                </button>
+                            </div>
 
-                    <TaskList
-                        tasks={tasks}
-                        onEditTask={handleEditTask}
-                        onDeleteTask={handleDeleteTask}
-                        onGenerateExcel={handleGenerateExcel}
-                        onViewPdf={handleViewPdf}
-                    />
+                            <TaskList
+                                tasks={tasks}
+                                onEditTask={handleEditTask}
+                                onDeleteTask={handleDeleteTask}
+                                onGenerateExcel={handleGenerateExcel}
+                                onViewPdf={handleViewPdf}
+                                semester={getSemesterNumber(selectedSemester)}
+                                division={getDivisionLetter(selectedClass)}
+                            />
+                        </>
+                    )}
 
                     <PdfModal
                         isOpen={isPdfModalOpen}

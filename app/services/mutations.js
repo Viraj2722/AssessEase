@@ -6,8 +6,18 @@ export function useAddTaskMutation() {
   return useMutation({
     mutationKey: ["addTask"],
     mutationFn: async (data) => {
+      const taskData = {
+        teacherSubjectId: data.teacherSubjectId,
+        semester: data.semester,
+        taskType: data.taskType,
+        title: data.title,
+        dueDate: data.dueDate,
+        totalMarks: data.totalMarks,
+        division: data.division
+      };
+
       return (
-        await axios.post(`${API_URL}/teacher/addTask`, data, {
+        await axios.post(`${API_URL}/teacher/addTask`, taskData, {
           headers: { "Content-Type": "application/json" },
         })
       ).data;
@@ -15,6 +25,7 @@ export function useAddTaskMutation() {
     retry: false,
   });
 }
+
 export function useUploadSubmissionMutation() {
   return useMutation({
     mutationKey: ["uploadSubmission"],
