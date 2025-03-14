@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
-const PdfModal = ({ isOpen, onClose, taskType, onSave }) => {
+const PdfModal = ({ isOpen, onClose, taskType, fileKey, onSave }) => {
     const [marks, setMarks] = useState({});
     const [comments, setComments] = useState('');
     const [totalMarks, setTotalMarks] = useState(0);
 
     const totalQuestions = taskType === 'MSE' ? 6 : 3;
+
+
 
     useEffect(() => {
         if (isOpen) {
@@ -86,7 +88,14 @@ const PdfModal = ({ isOpen, onClose, taskType, onSave }) => {
                     </div>
 
                     <div className="col-span-2 bg-gray-100 rounded-lg p-4 min-h-[600px] flex items-center justify-center">
-                        <p className="text-gray-500">PDF Viewer Placeholder</p>
+                        <object
+                            data={`http://127.0.0.1:8787/student/file/${taskType.submission.filePath}`}
+                            type="application/pdf"
+                            width="100%"
+                            height="100%"
+                        >
+                            <p>Alternative text - include a link <a href={`http://127.0.0.1:8787/student/file/${taskType.submission.filePath}`}>to the PDF!</a></p>
+                        </object>
                     </div>
                 </div>
             </div>

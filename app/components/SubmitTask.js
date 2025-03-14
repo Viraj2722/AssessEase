@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useUploadSubmissionMutation } from '../services/mutations';
 
-const SubmitTask = ({ taskId, studentId }) => {
+const SubmitTask = ({ taskId, studentId, onSubmitSuccess }) => {
     const [selectedFile, setSelectedFile] = useState(null);
     const uploadMutation = useUploadSubmissionMutation();
 
@@ -18,9 +18,15 @@ const SubmitTask = ({ taskId, studentId }) => {
                 taskId: taskId,
                 studentId: studentId
             });
-            // Handle success (e.g., show success message, refresh task list)
+            
+            // Call the success callback with the taskId
+            if (onSubmitSuccess) {
+                onSubmitSuccess(taskId);
+            }
+            
+            // Reset the file input
+            setSelectedFile(null);
         } catch (error) {
-            // Handle error
             console.error('Upload failed:', error);
         }
     };

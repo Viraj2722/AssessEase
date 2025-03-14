@@ -1,15 +1,28 @@
+import { useEffect } from 'react';
 import { useGetTeacherStudentsListQuery } from '../services/queries';
 import { FileText } from 'lucide-react';
 
-const StudentList = ({ taskId, semester, subjectId, division, onViewPdf }) => {
-    console.log('StudentList received:', { taskId, semester, subjectId, division });
-
+const StudentList = ({ taskId, semester, subjectId, division, onViewPdf, onUpdatePendingCount }) => {
     const { data: studentData, isLoading } = useGetTeacherStudentsListQuery(
         semester,
         "sub_1",
         division,
         taskId
     );
+
+    // Calculate and report pending counts when data is loaded
+    useEffect(() => {
+        if (studentData?.data) {
+            const pendingCount = studentData.data.filter(
+                student => student.submission?.status !== 'submitted'
+            ).length;
+            const totalCount = studentData.data.length;
+            
+            if (onUpdatePendingCount) {
+                onUpdatePendingCount(taskId, pendingCount, totalCount);
+            }
+        }
+    }, [studentData, taskId]); // Remove onUpdatePendingCount from dependencies
 
     if (isLoading) return <div>Loading students...</div>;
 
@@ -31,8 +44,8 @@ const StudentList = ({ taskId, semester, subjectId, division, onViewPdf }) => {
                         <td className="px-6 py-4 whitespace-nowrap">{student.studentName}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`px-2 py-1 rounded-full text-xs ${student.submission?.status === 'submitted'
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-yellow-100 text-yellow-800'
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-yellow-100 text-yellow-800'
                                 }`}>
                                 {student.submission?.status || 'pending'}
                             </span>

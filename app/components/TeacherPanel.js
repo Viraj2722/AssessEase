@@ -28,7 +28,7 @@ const TeacherPanel = () => {
         return match ? match[0] : null;
     };
 
-   
+
     const { data: taskData, isLoading } = useGetTeacherTasksQuery(
         selectedSemester ? getSemesterNumber(selectedSemester) : null,
         'sub_1',
@@ -151,6 +151,7 @@ const TeacherPanel = () => {
                         onClose={() => setIsPdfModalOpen(false)}
                         taskType={currentTaskType}
                         onSave={handlePdfModalSave}
+
                     />
                 </div>
             </div>
