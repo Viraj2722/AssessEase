@@ -87,3 +87,19 @@ export function useGetTeacherTasksQuery(semester, subjectId, division) {
 
 
 
+// Add this to your existing queries.js file
+
+export function useGetSubmissionByFilePathQuery(filePath) {
+  return useQuery({
+    queryKey: ["getSubmissionByFilePath", filePath],
+    queryFn: async () => {
+      if (!filePath) return null;
+      
+      return (await axios.get(
+        `${API_URL}/submission/id-by-filepath/${encodeURIComponent(filePath)}`
+      )).data;
+    },
+    enabled: Boolean(filePath),
+    retry: false,
+  });
+}

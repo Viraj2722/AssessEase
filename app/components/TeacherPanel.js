@@ -7,6 +7,7 @@ import Sidebar from './TSidebar';
 import { FileSpreadsheet } from 'lucide-react';
 import { useAddTaskMutation } from '../services/mutations';
 import { useGetTeacherTasksQuery } from '../services/queries';
+import { useGetSubmissionByFilePathQuery } from '../services/queries';
 
 const TeacherPanel = () => {
     const [selectedSemester, setSelectedSemester] = useState('');
@@ -15,6 +16,11 @@ const TeacherPanel = () => {
     const [tasks, setTasks] = useState([]);
     const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
     const [currentTaskType, setCurrentTaskType] = useState(null);
+    const [currentSubmission, setCurrentSubmission] = useState(null);
+    const [teacherId, setTeacherId] = useState("tch_1");
+
+
+
 
     const mutation = useAddTaskMutation();
 
@@ -62,11 +68,13 @@ const TeacherPanel = () => {
                 division: selectedClass,
                 semester: selectedSemester
             };
+            
             setTasks([...tasks, newTask]);
         } catch (error) {
             console.error("Failed to add task:", error);
         }
     };
+    
 
     const handleEditTask = (taskId, updatedTask) => {
         setTasks(tasks.map(task =>
@@ -86,10 +94,21 @@ const TeacherPanel = () => {
         alert('Logout clicked');
     };
 
+
+
     const handleViewPdf = (taskId, taskType, student) => {
+        
         setCurrentTaskType(taskType);
+        setCurrentSubmission({
+            id: student?.submission?.id || `${taskId}`,
+            filePath: taskType?.submission?.filePath
+        });
         setIsPdfModalOpen(true);
     };
+
+  
+
+
 
     const handlePdfModalSave = (data) => {
         console.log('Saving PDF modal data:', data);
@@ -100,6 +119,12 @@ const TeacherPanel = () => {
     const handleIntegrateExcel = () => {
         alert('Excel integration clicked');
     };
+
+    console.log("currentSubmission is here :", currentSubmission);
+    const { data: submissionData } = useGetSubmissionByFilePathQuery(currentSubmission?.filePath);
+
+     console.log("submissionData is here :", submissionData.data.id);
+
 
     return (
         <div className="min-h-screen bg-[#caf0f8]">
@@ -145,13 +170,14 @@ const TeacherPanel = () => {
                             />
                         </>
                     )}
-
                     <PdfModal
                         isOpen={isPdfModalOpen}
                         onClose={() => setIsPdfModalOpen(false)}
                         taskType={currentTaskType}
+                        fileKey={currentSubmission?.filePath}
+                        submissionId={ submissionData.data.id}
+                        teacherId={teacherId}
                         onSave={handlePdfModalSave}
-
                     />
                 </div>
             </div>

@@ -1,13 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import { useSaveMarksMutation } from '../services/mutations';
+import { useGetSubmissionByFilePathQuery } from '../services/queries';
+import { API_URL } from '../lib/utils';
 
-const PdfModal = ({ isOpen, onClose, taskType, fileKey, onSave }) => {
+const PdfModal = ({ isOpen, onClose, taskType, fileKey, submissionId, teacherId, onSave }) => {
     const [marks, setMarks] = useState({});
     const [comments, setComments] = useState('');
     const [totalMarks, setTotalMarks] = useState(0);
+    const [pdfError, setPdfError] = useState(false);
 
+    const saveMarksMutation = useSaveMarksMutation();
     const totalQuestions = taskType === 'MSE' ? 6 : 3;
 
+    console.log("task type", taskType);
+
+    // console.log("PdfModal props:", { isOpen, taskType, fileKey, submissionId, teacherId });
 
 
     useEffect(() => {
@@ -15,6 +23,7 @@ const PdfModal = ({ isOpen, onClose, taskType, fileKey, onSave }) => {
             setMarks({});
             setComments('');
             setTotalMarks(0);
+            setPdfError(false);
         }
     }, [isOpen]);
 
@@ -30,12 +39,57 @@ const PdfModal = ({ isOpen, onClose, taskType, fileKey, onSave }) => {
         }));
     };
 
-    const handleSave = () => {
-        onSave({ marks, totalMarks, comments });
-        onClose();
+    // const { data: submissionData } = useGetSubmissionByFilePathQuery(fileKey);
+
+
+    // console.log("submissionData:", submissionData);
+    const handleSave = async () => {
+        try {
+            const marksData = { marks, totalMarks, comments };
+            // console.log("submission id is ",submissionId);
+            // console.log("Saving marks data:", {
+            //     submissionId,
+            //     marksData,
+            //     teacherId
+            // });
+
+
+
+            const result = await saveMarksMutation.mutateAsync({
+                submissionId,
+                marksData,
+                teacherId
+            });
+
+            console.log("Save result:", result);
+            onSave({ marks, totalMarks, comments });
+            onClose();
+        } catch (error) {
+            console.error("Error saving marks:", error);
+
+            // Log more details about the error
+            if (error.response) {
+                console.error("Error response data:", error.response.data);
+                console.error("Error response status:", error.response.status);
+
+                // Show error message to user
+                alert(`Error: ${error.response.data.message || "Failed to save marks"}`);
+            } else {
+                alert("Failed to save marks. Check console for details.");
+            }
+        }
+    };
+
+    const handlePdfError = () => {
+        console.error("Failed to load PDF");
+        setPdfError(true);
     };
 
     if (!isOpen) return null;
+
+    // Construct the PDF URL using the fileKey directly
+    const pdfUrl = fileKey ? `${API_URL}/student/file/${fileKey}` : '';
+    // console.log("PDF URL:", pdfUrl);
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -82,20 +136,40 @@ const PdfModal = ({ isOpen, onClose, taskType, fileKey, onSave }) => {
                         <button
                             onClick={handleSave}
                             className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full"
+                            disabled={saveMarksMutation.isPending}
                         >
-                            Save
+                            {saveMarksMutation.isPending ? 'Saving...' : 'Save'}
                         </button>
                     </div>
 
                     <div className="col-span-2 bg-gray-100 rounded-lg p-4 min-h-[600px] flex items-center justify-center">
-                        <object
-                            data={`http://127.0.0.1:8787/student/file/${taskType.submission.filePath}`}
-                            type="application/pdf"
-                            width="100%"
-                            height="100%"
-                        >
-                            <p>Alternative text - include a link <a href={`http://127.0.0.1:8787/student/file/${taskType.submission.filePath}`}>to the PDF!</a></p>
-                        </object>
+                        {pdfError ? (
+                            <div className="text-center text-red-500">
+                                <p>Failed to load PDF. Please check if the file exists.</p>
+                                <a
+                                    href={pdfUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-500 underline mt-2 inline-block"
+                                >
+                                    Try opening directly
+                                </a>
+                            </div>
+                        ) : fileKey ? (
+                            <iframe
+                                src={pdfUrl}
+                                width="100%"
+                                height="100%"
+                                onError={handlePdfError}
+                                style={{ border: 'none' }}
+                            >
+                                <p>Your browser does not support iframes. <a href={pdfUrl} target="_blank" rel="noopener noreferrer">Click here</a> to view the PDF.</p>
+                            </iframe>
+                        ) : (
+                            <div className="text-center text-gray-500">
+                                <p>No PDF file available</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

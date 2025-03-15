@@ -26,6 +26,8 @@ const StudentList = ({ taskId, semester, subjectId, division, onViewPdf, onUpdat
 
     if (isLoading) return <div>Loading students...</div>;
 
+    console.log('Student data:', studentData);
+
     return (
         <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">

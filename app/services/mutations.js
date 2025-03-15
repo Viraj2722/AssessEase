@@ -26,6 +26,7 @@ export function useAddTaskMutation() {
   });
 }
 
+
 export function useUploadSubmissionMutation() {
   return useMutation({
     mutationKey: ["uploadSubmission"],
@@ -43,5 +44,52 @@ export function useUploadSubmissionMutation() {
         })
       ).data;
     },
+  });
+}
+
+
+
+
+export function useSaveMarksMutation() {
+  return useMutation({
+    mutationKey: ["saveMarks"],
+    mutationFn: async ({ submissionId, marksData, teacherId }) => {
+      // console.log("Mutation received:", { submissionId, marksData, teacherId });
+      
+      // Validate required data
+      if (!submissionId) {
+        throw new Error("submissionId is required");
+      }
+      if (!teacherId) {
+        throw new Error("teacherId is required");
+      }
+      if (!marksData.marks || Object.keys(marksData.marks).length === 0) {
+        throw new Error("marks are required");
+      }
+      
+      // Convert marks object to array of question-mark pairs
+      const marksArray = Object.entries(marksData.marks).map(([questionKey, marksObtained]) => ({
+        submissionId,
+        questionNumber: parseInt(questionKey.replace('Q', '')),
+        marksObtained: parseFloat(marksObtained),
+        comments: marksData.comments || "",
+        markedBy: teacherId
+      }));
+      
+      console.log("Sending marks array:", marksArray);
+
+      try {
+        const response = await axios.post(`${API_URL}/teacher/save-marks`, {
+          marks: marksArray
+        }, {
+          headers: { "Content-Type": "application/json" },
+        });
+        return response.data;
+      } catch (error) {
+        console.error("Error response:", error.response?.data);
+        throw error;
+      }
+    },
+    retry: false,
   });
 }

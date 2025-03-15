@@ -100,24 +100,21 @@ const SelectionDropdowns = ({
             {/* Semester Dropdown */}
             <div className="relative" ref={semesterRef}>
                 <button
-                    className={`flex items-center justify-between bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 w-[180px] transition-all duration-200 ${
-                        showSemesterDropdown ? 'ring-2 ring-blue-300' : ''
-                    }`}
+                    className={`flex items-center justify-between bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 w-[180px] transition-all duration-200 ${showSemesterDropdown ? 'ring-2 ring-blue-300' : ''
+                        }`}
                     onClick={() => toggleDropdown('semester')}
                 >
                     <span className="truncate">{selectedSemester || 'Semester'}</span>
-                    <ChevronDown 
-                        size={16} 
-                        className={`transform transition-transform duration-200 ${
-                            showSemesterDropdown ? 'rotate-180' : ''
-                        }`}
+                    <ChevronDown
+                        size={16}
+                        className={`transform transition-transform duration-200 ${showSemesterDropdown ? 'rotate-180' : ''
+                            }`}
                     />
                 </button>
-                <div className={`absolute top-full left-0 mt-1 bg-white border rounded-md shadow-lg z-10 w-[180px] transition-all duration-200 origin-top ${
-                    showSemesterDropdown 
-                        ? 'transform scale-y-100 opacity-100' 
+                <div className={`absolute top-full left-0 mt-1 bg-white border rounded-md shadow-lg z-10 w-[180px] transition-all duration-200 origin-top ${showSemesterDropdown
+                        ? 'transform scale-y-100 opacity-100'
                         : 'transform scale-y-0 opacity-0 pointer-events-none'
-                }`}>
+                    }`}>
                     {years.map((year, yearIndex) => (
                         Array(2).fill(null).map((_, i) => {
                             const semester = yearIndex * 2 + i + 1;
@@ -138,25 +135,22 @@ const SelectionDropdowns = ({
             {/* Subject Dropdown */}
             <div className="relative" ref={subjectRef}>
                 <button
-                    className={`flex items-center justify-between bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed w-[180px] transition-all duration-200 ${
-                        showSubjectDropdown ? 'ring-2 ring-blue-300' : ''
-                    }`}
+                    className={`flex items-center justify-between bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed w-[180px] transition-all duration-200 ${showSubjectDropdown ? 'ring-2 ring-blue-300' : ''
+                        }`}
                     onClick={() => toggleDropdown('subject')}
                     disabled={!selectedSemester}
                 >
                     <span className="truncate">{selectedSubject || 'Subject'}</span>
-                    <ChevronDown 
-                        size={16} 
-                        className={`transform transition-transform duration-200 ${
-                            showSubjectDropdown ? 'rotate-180' : ''
-                        }`}
+                    <ChevronDown
+                        size={16}
+                        className={`transform transition-transform duration-200 ${showSubjectDropdown ? 'rotate-180' : ''
+                            }`}
                     />
                 </button>
-                <div className={`absolute top-full left-0 mt-1 bg-white border rounded-md shadow-lg z-10 w-[180px] transition-all duration-200 origin-top ${
-                    showSubjectDropdown 
-                        ? 'transform scale-y-100 opacity-100' 
+                <div className={`absolute top-full left-0 mt-1 bg-white border rounded-md shadow-lg z-10 w-[180px] transition-all duration-200 origin-top ${showSubjectDropdown
+                        ? 'transform scale-y-100 opacity-100'
                         : 'transform scale-y-0 opacity-0 pointer-events-none'
-                }`}>
+                    }`}>
                     {availableSubjects.map((subject, index) => (
                         <button
                             key={`subject-${index}`}
@@ -175,25 +169,22 @@ const SelectionDropdowns = ({
             {/* Class Dropdown */}
             <div className="relative" ref={classRef}>
                 <button
-                    className={`flex items-center justify-between bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed w-[180px] transition-all duration-200 ${
-                        showClassDropdown ? 'ring-2 ring-blue-300' : ''
-                    }`}
+                    className={`flex items-center justify-between bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed w-[180px] transition-all duration-200 ${showClassDropdown ? 'ring-2 ring-blue-300' : ''
+                        }`}
                     onClick={() => toggleDropdown('class')}
                     disabled={!selectedSemester || !selectedSubject}
                 >
                     <span className="truncate">{selectedClass || 'Class'}</span>
-                    <ChevronDown 
-                        size={16} 
-                        className={`transform transition-transform duration-200 ${
-                            showClassDropdown ? 'rotate-180' : ''
-                        }`}
+                    <ChevronDown
+                        size={16}
+                        className={`transform transition-transform duration-200 ${showClassDropdown ? 'rotate-180' : ''
+                            }`}
                     />
                 </button>
-                <div className={`absolute top-full left-0 mt-1 bg-white border rounded-md shadow-lg z-10 w-[180px] transition-all duration-200 origin-top ${
-                    showClassDropdown 
-                        ? 'transform scale-y-100 opacity-100' 
+                <div className={`absolute top-full left-0 mt-1 bg-white border rounded-md shadow-lg z-10 w-[180px] transition-all duration-200 origin-top ${showClassDropdown
+                        ? 'transform scale-y-100 opacity-100'
                         : 'transform scale-y-0 opacity-0 pointer-events-none'
-                }`}>
+                    }`}>
                     {availableClasses.map((className, index) => (
                         <button
                             key={`class-${index}`}
@@ -212,25 +203,24 @@ const SelectionDropdowns = ({
             {/* Task Dropdown */}
             <div className="relative" ref={taskRef}>
                 <button
-                    className={`flex items-center justify-between bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed w-[180px] transition-all duration-200 ${
-                        showTaskDropdown ? 'ring-2 ring-blue-300' : ''
-                    }`}
+                    className={`flex items-center justify-between bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed w-[180px] transition-all duration-200 ${showTaskDropdown ? 'ring-2 ring-blue-300' : ''
+                        }`}
                     onClick={() => toggleDropdown('task')}
                     disabled={!selectedSemester || !selectedSubject || !selectedClass}
                 >
                     <span className="truncate">{selectedTask || 'Tasks'}</span>
-                    <ChevronDown 
-                        size={16} 
-                        className={`transform transition-transform duration-200 ${
-                            showTaskDropdown ? 'rotate-180' : ''
-                        }`}
+                    <ChevronDown
+                        size={16}
+                        className={`transform transition-transform duration-200 ${showTaskDropdown ? 'rotate-180' : ''
+                            }`}
                     />
                 </button>
-                <div className={`absolute top-full left-0 mt-1 bg-white border rounded-md shadow-lg z-10 w-[180px] transition-all duration-200 origin-top ${
-                    showTaskDropdown 
-                        ? 'transform scale-y-100 opacity-100' 
+                <div className={`absolute top-full left-0 mt-1 bg-white border rounded-md shadow-lg z-10 w-[180px] transition-all duration-200 origin-top ${showTaskDropdown
+                        ? 'transform scale-y-100 opacity-100'
                         : 'transform scale-y-0 opacity-0 pointer-events-none'
-                }`}>
+                    }`}>
+
+                    {/* 'Exp1', 'Exp2','Exp3','Exp4','Exp5','Exp6','Exp7','Exp8','Exp9','Exp10', */}
                     {['ISE 1', 'ISE 2', 'MSE'].map((task, index) => (
                         <button
                             key={task}
