@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
 import { useUploadSubmissionMutation } from '../services/mutations';
+import { useAuth } from '../hooks/useAuth';
 
-const SubmitTask = ({ taskId, studentId, onSubmitSuccess }) => {
+const SubmitTask = ({ taskId, onSubmitSuccess }) => {
     const [selectedFile, setSelectedFile] = useState(null);
     const uploadMutation = useUploadSubmissionMutation();
+    const { user } = useAuth("student");
+    
+    // Get student ID from authenticated user
+    const studentId = user?.student?.id;
 
     const handleFileChange = (event) => {
         setSelectedFile(event.target.files[0]);
     };
 
     const handleSubmit = async () => {
-        if (!selectedFile) return;
+        if (!selectedFile || !studentId) return;
 
         try {
             await uploadMutation.mutateAsync({
@@ -40,7 +45,7 @@ const SubmitTask = ({ taskId, studentId, onSubmitSuccess }) => {
             />
             <button
                 onClick={handleSubmit}
-                disabled={!selectedFile || uploadMutation.isPending}
+                disabled={!selectedFile || uploadMutation.isPending || !studentId}
                 className="bg-blue-500 text-white px-4 py-2 rounded"
             >
                 {uploadMutation.isPending ? 'Uploading...' : 'Submit'}

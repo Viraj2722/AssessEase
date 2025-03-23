@@ -1,13 +1,21 @@
-import React from "react";
+"use client";
+import { useAuth } from "../hooks/useAuth";
 
 const StudentInfo = ({ studentData }) => {
+  const { user } = useAuth("student");
+
+  // Use provided studentData or fall back to authenticated user data
+  const data = studentData || user;
+
+
+
   const studentDetails = [
-    { label: "Student Name", value: studentData?.users?.fullName || "N/A" },
-    { label: "Roll Number", value: studentData?.students?.rollNumber || "N/A" },
-    { label: "Class", value: `${studentData?.students?.currentYear} ${studentData?.students?.division}` || "N/A" },
-    { label: "Academic Year", value: studentData?.students?.academicYear || "N/A" },
-    { label: "Contact Number", value: studentData?.users?.contactNumber || "N/A" },
-    { label: "Email", value: studentData?.users?.email || "N/A" },
+    { label: "Student Name", value: data?.users?.fullName || "N/A" },
+    { label: "Roll Number", value: data?.students?.rollNumber || "N/A" },
+    { label: "Class", value: `${data?.students?.currentYear} ${data?.students?.division}` || "N/A" },
+    { label: "Academic Year", value: data?.students?.academicYear || "N/A" },
+    { label: "Contact Number", value: data?.users?.contactNumber || "N/A" },
+    { label: "Email", value: data?.users?.email || "N/A" },
   ];
 
   return (

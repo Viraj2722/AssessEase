@@ -3,12 +3,13 @@
 import React from "react";
 import { useRouter } from "next/navigation"; 
 import { LogOut } from "lucide-react";
+import { logout } from "../services/auth";
 
 const Header = () => {
     const router = useRouter(); 
 
     const handleLogout = () => {
-        localStorage.removeItem("user"); 
+        logout();
         router.push("/login");
     };
 

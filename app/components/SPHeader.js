@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
+import { logout } from "../services/auth"
 
 const Header = ({ onStatusChange }) => {
     const router = useRouter()
@@ -8,7 +9,7 @@ const Header = ({ onStatusChange }) => {
     const dropdownRef = useRef(null)
 
     const handleLogout = () => {
-        localStorage.removeItem("user")
+        logout()
         router.push("/login")
     }
 
@@ -50,16 +51,16 @@ const Header = ({ onStatusChange }) => {
                         </svg>
                     </button>
                     {isOpen && (
-                        <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                            <div className="py-1" role="menu">
-                                {["Pending", "Submitted"].map(task => (
-                                    <div
+                        <div className="absolute z-10 mt-1 w-full bg-white rounded-md shadow-lg">
+                            <div className="py-1">
+                                {["Pending", "Submitted", "Graded"].map((task) => (
+                                    <button
                                         key={task}
-                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                                         onClick={() => handleSelectTask(task)}
+                                        className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
                                     >
                                         {task}
-                                    </div>
+                                    </button>
                                 ))}
                             </div>
                         </div>
@@ -69,20 +70,6 @@ const Header = ({ onStatusChange }) => {
                     onClick={handleLogout}
                     className="flex gap-2 items-center bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                 >
-                    <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                        ></path>
-                    </svg>
                     Logout
                 </button>
             </div>

@@ -1,13 +1,28 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { loginUser, isAuthenticated, getUserRole } from '../services/auth';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [role, setRole] = useState('student');
     const [errors, setErrors] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
+    const [loginError, setLoginError] = useState('');
     const router = useRouter();
+
+    useEffect(() => {
+        // Check if user is already logged in
+        if (isAuthenticated()) {
+            const userRole = getUserRole();
+            if (userRole === 'teacher') {
+                router.push('/teacherPanel');
+            } else if (userRole === 'student') {
+                router.push('/studentPanel');
+            }
+        }
+    }, [router]);
 
     const validateForm = () => {
         const newErrors = {};
@@ -17,21 +32,37 @@ const Login = () => {
         return newErrors;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const validationErrors = validateForm();
+        
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
-        } else {
-            setErrors({});
-            // Handle successful login here
-            console.log({ email, password, role });
-            // Redirect based on role
-            if (role === 'teacher') {
-                router.push('/teacherPanel'); // Redirect to teacherPanel
+            return;
+        }
+        
+        setErrors({});
+        setLoginError('');
+        setIsLoading(true);
+        
+        try {
+            const result = await loginUser(email, password, role);
+            
+            if (result.success) {
+                // Redirect based on role
+                if (role === 'teacher') {
+                    router.push('/teacherPanel');
+                } else {
+                    router.push('/studentPanel');
+                }
             } else {
-                router.push('/studentPanel'); // Redirect to studentPanel
+                setLoginError(result.message || 'Login failed. Please check your credentials.');
             }
+        } catch (error) {
+            setLoginError('An unexpected error occurred. Please try again.');
+            console.error('Login error:', error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -39,6 +70,13 @@ const Login = () => {
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-400 to-purple-500">
             <div className="bg-white p-10 rounded-lg shadow-lg w-full max-w-md">
                 <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">Login</h2>
+                
+                {loginError && (
+                    <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                        {loginError}
+                    </div>
+                )}
+                
                 <form onSubmit={handleSubmit}>
                     <div className="mb-6">
                         <label className="block text-sm font-medium text-gray-700" htmlFor="email">Email</label>
@@ -76,9 +114,10 @@ const Login = () => {
                     </div>
                     <button
                         type="submit"
-                        className="w-full bg-blue-500 text-white p-3 rounded-md hover:bg-blue-600 transition duration-200"
+                        disabled={isLoading}
+                        className="w-full bg-blue-500 text-white p-3 rounded-md hover:bg-blue-600 transition duration-200 disabled:bg-blue-300"
                     >
-                        Login
+                        {isLoading ? 'Logging in...' : 'Login'}
                     </button>
                 </form>
             </div>

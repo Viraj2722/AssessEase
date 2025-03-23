@@ -8,19 +8,33 @@ import { FileSpreadsheet } from 'lucide-react';
 import { useAddTaskMutation } from '../services/mutations';
 import { useGetTeacherTasksQuery } from '../services/queries';
 import { useGetSubmissionByFilePathQuery } from '../services/queries';
+import { useAuth } from '../hooks/useAuth';
+import { useRouter } from 'next/navigation';
 
 const TeacherPanel = () => {
+    // Use authentication hook to get teacher data
+    const { user, loading, logout } = useAuth("teacher");
+    const router = useRouter();
+
+
+    console.log("User data:", user);
+
     const [selectedSemester, setSelectedSemester] = useState('');
     const [selectedSubject, setSelectedSubject] = useState('');
+    const [selectedSubjectId, setSelectedSubjectId] = useState('');
+    const [selectedTeacherSubjectId, setSelectedTeacherSubjectId] = useState('');
     const [selectedClass, setSelectedClass] = useState('');
     const [tasks, setTasks] = useState([]);
     const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
     const [currentTaskType, setCurrentTaskType] = useState(null);
     const [currentSubmission, setCurrentSubmission] = useState(null);
-    const [teacherId, setTeacherId] = useState("tch_1");
 
+    // Get teacher ID from authenticated user
+    const teacherId = user?.teacher?.id;
 
-
+  
+    // Get available subjects for this teacher
+    const teacherSubjects = user?.teacherSubjects || [];
 
     const mutation = useAddTaskMutation();
 
@@ -34,21 +48,51 @@ const TeacherPanel = () => {
         return match ? match[0] : null;
     };
 
+    // Set initial values when user data is loaded
+    useEffect(() => {
+        if (user && teacherSubjects.length > 0) {
+            // Set default values from first subject
+            const firstSubject = teacherSubjects[0];
+            setSelectedSemester(`Semester ${firstSubject.semester}`);
+            setSelectedSubject(firstSubject.subjectName);
+            setSelectedSubjectId(firstSubject.subjectId);
+            setSelectedTeacherSubjectId(firstSubject.id);
+            setSelectedClass(`Division ${firstSubject.division}`);
+        }
+    }, [user, teacherSubjects]);
 
+    // Query tasks based on selected filters
     const { data: taskData, isLoading } = useGetTeacherTasksQuery(
         selectedSemester ? getSemesterNumber(selectedSemester) : null,
-        'sub_1',
+        selectedSubjectId || (teacherSubjects[0]?.subjectId),
         selectedClass ? getDivisionLetter(selectedClass) : null
     );
+    console.log("Selected Semester:", selectedSubjectId);
+
+    console.log("Task Data:", taskData);
     useEffect(() => {
         if (taskData?.data) {
             setTasks(taskData.data);
         }
     }, [taskData]);
 
+    // Handle subject selection
+    const handleSubjectSelect = (subjectName) => {
+        setSelectedSubject(subjectName);
+
+        // Find the matching subject in teacherSubjects
+        const subject = teacherSubjects.find(s => s.subjectName === subjectName);
+        if (subject) {
+            setSelectedSubjectId(subject.subjectId);
+            setSelectedTeacherSubjectId(subject.id);
+            setSelectedSemester(`Semester ${subject.semester}`);
+            setSelectedClass(`Division ${subject.division}`);
+        }
+    };
+
     const handleAddTask = async (taskType) => {
         const taskData = {
-            teacherSubjectId: "ts_1",
+            teacherSubjectId: selectedTeacherSubjectId,
             semester: getSemesterNumber(selectedSemester),
             taskType: taskType,
             title: selectedSubject,
@@ -68,13 +112,12 @@ const TeacherPanel = () => {
                 division: selectedClass,
                 semester: selectedSemester
             };
-            
+
             setTasks([...tasks, newTask]);
         } catch (error) {
             console.error("Failed to add task:", error);
         }
     };
-    
 
     const handleEditTask = (taskId, updatedTask) => {
         setTasks(tasks.map(task =>
@@ -91,13 +134,11 @@ const TeacherPanel = () => {
     };
 
     const handleLogout = () => {
-        alert('Logout clicked');
+        logout();
+        router.push('/login');
     };
 
-
-
     const handleViewPdf = (taskId, taskType, student) => {
-        
         setCurrentTaskType(taskType);
         setCurrentSubmission({
             id: student?.submission?.id || `${taskId}`,
@@ -105,10 +146,6 @@ const TeacherPanel = () => {
         });
         setIsPdfModalOpen(true);
     };
-
-  
-
-
 
     const handlePdfModalSave = (data) => {
         console.log('Saving PDF modal data:', data);
@@ -120,11 +157,13 @@ const TeacherPanel = () => {
         alert('Excel integration clicked');
     };
 
-    console.log("currentSubmission is here :", currentSubmission);
-    const { data: submissionData } = useGetSubmissionByFilePathQuery(currentSubmission?.filePath);
+    // Use the submission data if available
+    const { data: submissionData = { data: { id: '' } } } = useGetSubmissionByFilePathQuery(currentSubmission?.filePath) || {};
 
-     console.log("submissionData is here :", submissionData.data.id);
-
+    // Show loading state while authentication is in progress
+    if (loading) {
+        return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    }
 
     return (
         <div className="min-h-screen bg-[#caf0f8]">
@@ -136,9 +175,12 @@ const TeacherPanel = () => {
                         selectedSubject={selectedSubject}
                         selectedClass={selectedClass}
                         onSemesterSelect={setSelectedSemester}
-                        onSubjectSelect={setSelectedSubject}
+                        onSubjectSelect={handleSubjectSelect}
                         onClassSelect={setSelectedClass}
                         onLogout={handleLogout}
+                        availableSubjects={teacherSubjects.map(s => s.subjectName)}
+                        availableSemesters={[...new Set(teacherSubjects.map(s => `Semester ${s.semester}`))]}
+                        availableClasses={[...new Set(teacherSubjects.map(s => `Division ${s.division}`))]}
                     />
 
                     {isLoading ? (
@@ -175,7 +217,7 @@ const TeacherPanel = () => {
                         onClose={() => setIsPdfModalOpen(false)}
                         taskType={currentTaskType}
                         fileKey={currentSubmission?.filePath}
-                        submissionId={ submissionData.data.id}
+                        submissionId={submissionData?.data?.id}
                         teacherId={teacherId}
                         onSave={handlePdfModalSave}
                     />
