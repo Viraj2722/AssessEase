@@ -50,7 +50,9 @@ export function useGetTeacherStudentsListQuery(semester, subjectId, division, ta
     },
     enabled: Boolean(semester && subjectId && division && taskId)
   });
+
 }
+
 export function useGetTeacherReportQuery(teacherSubjectId) {
   return useQuery({
     queryKey: ["getTeacherReport", teacherSubjectId],
@@ -76,7 +78,7 @@ export function useGetStudentFileQuery(key) {
 
 export function useGetTeacherTasksQuery(semester, subjectId, division) {
 
-  console.log("final ",semester, subjectId, division);
+  // console.log("final ",semester, subjectId, division);
   return useQuery({
     queryKey: ["getTeacherTasks", semester, subjectId, division],
     queryFn: async () => {
@@ -108,3 +110,19 @@ export function useGetSubmissionByFilePathQuery(filePath) {
     retry: false,
   });
 }
+// export const useGenerateTeacherReportQuery = (teacherSubjectId) => {
+//   // This is a custom hook that returns the fetch function
+//   // It doesn't use useQuery directly because we want to call it on demand
+  
+//   const fetchReport = async () => {
+//     try {
+//       const response = await axios.get(`${API_URL}/teacher/generate-report/${teacherSubjectId}`);
+//       return response.data;
+//     } catch (error) {
+//       console.error('Error fetching report:', error);
+//       throw error;
+//     }
+//   };
+
+//   return fetchReport;
+// };

@@ -17,6 +17,7 @@ const TaskPanel = ({ data, onTaskSubmitted, taskStatus }) => {
     }
   };
 
+
   return (
     <div className="flex flex-col gap-4 p-4">
       {data.map((task) => (
@@ -24,9 +25,11 @@ const TaskPanel = ({ data, onTaskSubmitted, taskStatus }) => {
           key={task.taskId}
           className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 w-full"
         >
+
           <div className="p-6">
             <div className="flex justify-between items-start mb-4">
-              <h3 className="text-xl font-semibold text-gray-800">{task.title}</h3>
+              <h3 className="text-xl font-semibold text-gray-800">{task.title} - {task.taskType}</h3>
+          
               <span className={`px-2 py-1 rounded text-sm ${task.submission.status === 'pending'
                 ? 'bg-yellow-100 text-yellow-800'
                 : 'bg-green-100 text-green-800'

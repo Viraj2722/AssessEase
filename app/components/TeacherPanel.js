@@ -4,7 +4,7 @@ import AddTaskModal from './AddTaskModal';
 import TaskList from './TaskList';
 import PdfModal from './PdfModal';
 import Sidebar from './TSidebar';
-import { FileSpreadsheet } from 'lucide-react';
+import { FileSpreadsheet, Plus } from 'lucide-react';
 import { useAddTaskMutation } from '../services/mutations';
 import { useGetTeacherTasksQuery } from '../services/queries';
 import { useGetSubmissionByFilePathQuery } from '../services/queries';
@@ -17,7 +17,7 @@ const TeacherPanel = () => {
     const router = useRouter();
 
 
-    console.log("User data:", user);
+    // console.log("User data:", user);
 
     const [selectedSemester, setSelectedSemester] = useState('');
     const [selectedSubject, setSelectedSubject] = useState('');
@@ -28,13 +28,17 @@ const TeacherPanel = () => {
     const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
     const [currentTaskType, setCurrentTaskType] = useState(null);
     const [currentSubmission, setCurrentSubmission] = useState(null);
+    // New state for add task modal
+    const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
 
     // Get teacher ID from authenticated user
     const teacherId = user?.teacher?.id;
 
-  
     // Get available subjects for this teacher
     const teacherSubjects = user?.teacherSubjects || [];
+    
+    // Log the available subjects for debugging
+    // console.log("Available teacher subjects:", teacherSubjects);
 
     const mutation = useAddTaskMutation();
 
@@ -50,6 +54,8 @@ const TeacherPanel = () => {
 
     // Set initial values when user data is loaded
     useEffect(() => {
+        console.log("User data:", user);
+
         if (user && teacherSubjects.length > 0) {
             // Set default values from first subject
             const firstSubject = teacherSubjects[0];
@@ -58,21 +64,27 @@ const TeacherPanel = () => {
             setSelectedSubjectId(firstSubject.subjectId);
             setSelectedTeacherSubjectId(firstSubject.id);
             setSelectedClass(`Division ${firstSubject.division}`);
+            
+            // console.log("Initial selection:", {
+            //     semester: `Semester ${firstSubject.semester}`,
+            //     subject: firstSubject.subjectName,
+            //     subjectId: firstSubject.subjectId,
+            //     teacherSubjectId: firstSubject.id,
+            //     class: `Division ${firstSubject.division}`
+            // });
         }
     }, [user, teacherSubjects]);
 
     // Query tasks based on selected filters
     const { data: taskData, isLoading } = useGetTeacherTasksQuery(
         selectedSemester ? getSemesterNumber(selectedSemester) : null,
-        selectedSubjectId || (teacherSubjects[1]?.subjectId),
+        selectedSubjectId,
         selectedClass ? getDivisionLetter(selectedClass) : null
     );
     // console.log("Selected Semester:", teacherSubjects);
 
-    console.log("task data is ",taskData)
-    // console.log("Selected Semester:", selectedSubjectId);
+    // console.log("task data is ",taskData)
 
-    // console.log("Task Data:", taskData);
     useEffect(() => {
         if (taskData?.data) {
             setTasks(taskData.data);
@@ -81,15 +93,26 @@ const TeacherPanel = () => {
 
     // Handle subject selection
     const handleSubjectSelect = (subjectName) => {
+        console.log("Selected subject name:", subjectName);
         setSelectedSubject(subjectName);
 
         // Find the matching subject in teacherSubjects
         const subject = teacherSubjects.find(s => s.subjectName === subjectName);
+        console.log("Found subject:", subject);
+        
         if (subject) {
             setSelectedSubjectId(subject.subjectId);
             setSelectedTeacherSubjectId(subject.id);
             setSelectedSemester(`Semester ${subject.semester}`);
             setSelectedClass(`Division ${subject.division}`);
+            
+            console.log("Updated selection:", {
+                semester: `Semester ${subject.semester}`,
+                subject: subject.subjectName,
+                subjectId: subject.subjectId,
+                teacherSubjectId: subject.id,
+                class: `Division ${subject.division}`
+            });
         }
     };
 
@@ -106,17 +129,31 @@ const TeacherPanel = () => {
 
         try {
             const response = await mutation.mutateAsync(taskData);
+            console.log("Task creation response:", response);
+            
+            // Create a new task object that matches the structure expected by TaskList
+            // This should match the structure of tasks returned by the API
             const newTask = {
                 id: response.task.id,
                 type: taskType,
                 name: selectedSubject,
-                date: new Date().toISOString().split('T')[0],
+                title: selectedSubject, // Add this if TaskList uses title
+                dueDate: new Date().toISOString(), // Use the full ISO string if that's what the API returns
+                date: new Date().toISOString().split('T')[0], // Keep this for compatibility
                 totalMarks: 20,
                 division: selectedClass,
                 semester: selectedSemester
             };
 
+            console.log("Adding new task to UI:", newTask);
             setTasks([...tasks, newTask]);
+            
+            // Close the modal after successful task addition
+            setIsAddTaskModalOpen(false);
+            
+            // Optionally, refetch the tasks to ensure UI is in sync with backend
+            // This would require modifying your useGetTeacherTasksQuery to expose a refetch function
+            // taskRefetch();
         } catch (error) {
             console.error("Failed to add task:", error);
         }
@@ -168,6 +205,17 @@ const TeacherPanel = () => {
         return <div className="flex justify-center items-center h-screen">Loading...</div>;
     }
 
+    // Create arrays of unique semesters, subjects, and classes for the dropdowns
+    const availableSemesters = [...new Set(teacherSubjects.map(s => `Semester ${s.semester}`))];
+    const availableSubjects = teacherSubjects.map(s => s.subjectName);
+    const availableClasses = [...new Set(teacherSubjects.map(s => `Division ${s.division}`))];
+
+    // console.log("Dropdown options:", {
+    //     semesters: availableSemesters,
+    //     subjects: availableSubjects,
+    //     classes: availableClasses
+    // });
+
     return (
         <div className="min-h-screen bg-[#caf0f8]">
             <div className="flex min-h-screen p-4 gap-4">
@@ -181,9 +229,9 @@ const TeacherPanel = () => {
                         onSubjectSelect={handleSubjectSelect}
                         onClassSelect={setSelectedClass}
                         onLogout={handleLogout}
-                        availableSubjects={teacherSubjects.map(s => s.subjectName)}
-                        availableSemesters={[...new Set(teacherSubjects.map(s => `Semester ${s.semester}`))]}
-                        availableClasses={[...new Set(teacherSubjects.map(s => `Division ${s.division}`))]}
+                        availableSubjects={availableSubjects}
+                        availableSemesters={availableSemesters}
+                        availableClasses={availableClasses}
                     />
 
                     {isLoading ? (
@@ -191,11 +239,14 @@ const TeacherPanel = () => {
                     ) : (
                         <>
                             <div className="flex justify-between items-center mt-6 pb-4 border-b">
-                                <AddTaskModal
-                                    onAddTask={handleAddTask}
-                                    selectedSubject={selectedSubject}
+                                {/* Replace dropdown with button */}
+                                <button
+                                    onClick={() => setIsAddTaskModalOpen(true)}
+                                    className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
                                     disabled={!selectedSemester || !selectedClass}
-                                />
+                                >
+                                    <Plus size={16} /> Add New Task
+                                </button>
                                 <button
                                     onClick={handleIntegrateExcel}
                                     className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
@@ -215,6 +266,17 @@ const TeacherPanel = () => {
                             />
                         </>
                     )}
+
+                    {/* Modal for adding tasks */}
+                    {isAddTaskModalOpen && (
+                        <AddTaskModal
+                            isOpen={isAddTaskModalOpen}
+                            onClose={() => setIsAddTaskModalOpen(false)}
+                            onAddTask={handleAddTask}
+                            selectedSubject={selectedSubject}
+                        />
+                    )}
+
                     <PdfModal
                         isOpen={isPdfModalOpen}
                         onClose={() => setIsPdfModalOpen(false)}

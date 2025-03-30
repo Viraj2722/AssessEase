@@ -10,21 +10,21 @@ const StudentDashboard = () => {
     const { user, loading } = useAuth("student");
     const [taskStatus, setTaskStatus] = useState("pending");
     
-    // Extract IDs correctly based on the actual user data structure
-    const userId = user?.user?.id; // This is "usr_3" in your example
-    const studentId = user?.student?.id; // This is "std_1" in your example
+    
+    const userId = user?.user?.id; 
+    const studentId = user?.student?.id; 
     
     console.log("User ID:", userId);
     console.log("Student ID:", studentId);
     console.log("Full user object:", user);
     
-    // Only fetch data when we have a valid userId
+   
     const dashboardQuery = useGetStudentDashboardQuery(
         userId ? userId : undefined, 
         {
-            // Don't run the query if userId is undefined
+            
             skip: !userId,
-            // Add error handling
+           
             onError: (error) => {
                 console.error("Dashboard query error:", error);
             }

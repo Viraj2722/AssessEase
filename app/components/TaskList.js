@@ -1,11 +1,13 @@
 import { useState, useCallback } from 'react';
 import { ChevronDown, ChevronUp, Edit, Trash2, FileSpreadsheet, AlertCircle } from 'lucide-react';
 import StudentList from './StudentList';
-import { useGetTeacherStudentsListQuery } from '../services/queries';
+import { generateExcelReport } from '../utils/excelUtils';
+import { API_URL } from '../lib/utils';
 
 const TaskList = ({ tasks, onEditTask, onDeleteTask, onGenerateExcel, onViewPdf, semester, division }) => {
     const [expandedTasks, setExpandedTasks] = useState(new Set());
     const [pendingCounts, setPendingCounts] = useState({});
+    const [generatingExcel, setGeneratingExcel] = useState(false);
 
     const toggleTask = (taskId) => {
         const newExpanded = new Set(expandedTasks);
@@ -31,10 +33,41 @@ const TaskList = ({ tasks, onEditTask, onDeleteTask, onGenerateExcel, onViewPdf,
             [taskId]: { pending: pendingCount, total: totalCount }
         }));
     }, []);
+
+    // Function to handle Excel generation
+    const handleGenerateExcel = async (task) => {
+        try {
+            setGeneratingExcel(true);
+
+            console.log('Generating Excel for task:', task);
+            
+            
+            const response = await fetch(`${API_URL}/teacher/generate-report/${task.taskId}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch report data');
+            }
+            const reportData = await response.json();
+
+            console.log('Report data:', reportData , reportData.length);
+            
+            if (reportData && reportData.length > 0) {
+                const fileName = generateExcelReport(reportData, task.title);
+                console.log(`Excel report generated: ${fileName}`);
+            } else {
+                alert('No data available to generate report');
+            }
+        } catch (error) {
+            console.error('Failed to generate Excel report:', error);
+            alert('Failed to generate Excel report. Please try again.');
+        } finally {
+            setGeneratingExcel(false);
+        }
+    };
+
     return (
         <div className="space-y-4 mt-4">
             {tasks && tasks.map((task) => (
-                <div key={task.taskId} className="bg-white rounded-lg shadow p-4">
+                <div key={task.id || task.taskId} className="bg-white rounded-lg shadow p-4">
                     <div className="flex justify-between items-center">
                         <div
                             className="flex items-center gap-6 flex-1 cursor-pointer p-3 hover:bg-gray-50 rounded-lg transition-colors"
@@ -90,8 +123,11 @@ const TaskList = ({ tasks, onEditTask, onDeleteTask, onGenerateExcel, onViewPdf,
                             </button>
 
                             <button
-                                onClick={() => onGenerateExcel(task.taskId)}
-                                className="p-2 text-green-600 hover:bg-green-50 rounded-full transition-colors"
+                                onClick={() => handleGenerateExcel(task)}
+                                disabled={generatingExcel}
+                                className={`p-2 text-green-600 hover:bg-green-50 rounded-full transition-colors ${
+                                    generatingExcel ? 'opacity-50 cursor-not-allowed' : ''
+                                }`}
                                 title="Generate Excel Report"
                             >
                                 <FileSpreadsheet size={18} />
