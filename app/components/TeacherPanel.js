@@ -10,6 +10,9 @@ import { useGetTeacherTasksQuery } from '../services/queries';
 import { useGetSubmissionByFilePathQuery } from '../services/queries';
 import { useAuth } from '../hooks/useAuth';
 import { useRouter } from 'next/navigation';
+import { generateIntegratedExcelReport } from '../utils/excelUtils';
+import { API_URL } from '../lib/utils';
+import { useGetTasksByFiltersQuery } from '../services/queries';
 
 const TeacherPanel = () => {
     // Use authentication hook to get teacher data
@@ -93,7 +96,7 @@ const TeacherPanel = () => {
 
     // Handle subject selection
     const handleSubjectSelect = (subjectName) => {
-        console.log("Selected subject name:", subjectName);
+        // console.log("Selected subject name:", subjectName);
         setSelectedSubject(subjectName);
 
         // Find the matching subject in teacherSubjects
@@ -106,13 +109,13 @@ const TeacherPanel = () => {
             setSelectedSemester(`Semester ${subject.semester}`);
             setSelectedClass(`Division ${subject.division}`);
             
-            console.log("Updated selection:", {
-                semester: `Semester ${subject.semester}`,
-                subject: subject.subjectName,
-                subjectId: subject.subjectId,
-                teacherSubjectId: subject.id,
-                class: `Division ${subject.division}`
-            });
+            // console.log("Updated selection:", {
+            //     semester: `Semester ${subject.semester}`,
+            //     subject: subject.subjectName,
+            //     subjectId: subject.subjectId,
+            //     teacherSubjectId: subject.id,
+            //     class: `Division ${subject.division}`
+            // });
         }
     };
 
@@ -192,9 +195,83 @@ const TeacherPanel = () => {
         alert('Marks and comments saved!');
         setIsPdfModalOpen(false);
     };
-
-    const handleIntegrateExcel = () => {
-        alert('Excel integration clicked');
+  
+    // console.log('Tasks response:',selectedSemester,selectedSubjectId,selectedClass);
+    const handleIntegrateExcel = async () => {
+        // Validate that filters are selected
+        if (!selectedSemester || !selectedSubjectId || !selectedClass) {
+            alert('Please select Semester, Subject, and Class before generating an integrated report');
+            return;
+        }
+        
+        try {
+            // Show loading state
+            alert('Generating integrated report...');
+            
+            // Get semester number and division letter
+            const semesterNumber = getSemesterNumber(selectedSemester);
+            const divisionLetter = getDivisionLetter(selectedClass);
+            
+            // Fetch tasks for the selected filters - direct fetch instead of using a hook
+            const tasksResponse = await fetch(
+                `${API_URL}/tasks/by-filters?semester=${semesterNumber}&subjectId=${selectedSubjectId}&division=${divisionLetter}`
+            );
+            
+            if (!tasksResponse.ok) {
+                throw new Error(`Failed to fetch tasks: ${tasksResponse.status}`);
+            }
+            
+            const tasksData = await tasksResponse.json();
+            
+            if (!tasksData.success || !tasksData.data || tasksData.data.length === 0) {
+                alert('No tasks found for the selected filters');
+                return;
+            }
+            
+            // Fetch report data for each task and combine
+            const allReportData = [];
+            
+            for (const task of tasksData.data) {
+                try {
+                    const response = await fetch(`${API_URL}/teacher/generate-report/${task.taskId}`);
+                    if (response.ok) {
+                        const taskReportData = await response.json();
+                        
+                        // Add task information to each record
+                        const enhancedData = taskReportData.map(item => ({
+                            ...item,
+                            taskId: task.taskId,
+                            taskTitle: task.title,
+                            taskType: task.taskType,
+                            dueDate: task.dueDate,
+                            totalMarks: task.totalMarks
+                        }));
+                        
+                        allReportData.push(...enhancedData);
+                    }
+                } catch (error) {
+                    console.error(`Error fetching report for task ${task.taskId}:`, error);
+                }
+            }
+            
+            if (allReportData.length === 0) {
+                alert('No report data available for the selected tasks');
+                return;
+            }
+            
+            // Generate integrated Excel report
+            const fileName = generateIntegratedExcelReport(
+                allReportData, 
+                `${selectedSubject}_${selectedSemester}_${selectedClass}`
+            );
+            
+            console.log(`Integrated Excel report generated: ${fileName}`);
+            alert(`Report generated successfully: ${fileName}`);
+            
+        } catch (error) {
+            console.error('Failed to generate integrated Excel report:', error);
+            alert('Failed to generate integrated report. Please try again.');
+        }
     };
 
     // Use the submission data if available

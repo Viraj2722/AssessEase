@@ -126,3 +126,18 @@ export function useGetSubmissionByFilePathQuery(filePath) {
 
 //   return fetchReport;
 // };
+
+// Add this to your existing queries.js file
+export function useGetTasksByFiltersQuery() {
+  return async (semester, subjectId, division) => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/tasks/by-filters?semester=${semester}&subjectId=${subjectId}&division=${division}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching tasks by filters:', error);
+      throw error;
+    }
+  };
+}
