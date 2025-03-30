@@ -13,7 +13,7 @@ const PdfModal = ({ isOpen, onClose, taskType, fileKey, submissionId, teacherId,
     const saveMarksMutation = useSaveMarksMutation();
     const totalQuestions = taskType === 'MSE' ? 6 : 3;
 
-    console.log("task type", taskType);
+    // console.log("task type", taskType);
 
     // console.log("PdfModal props:", { isOpen, taskType, fileKey, submissionId, teacherId });
 

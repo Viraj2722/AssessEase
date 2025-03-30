@@ -4,12 +4,24 @@ import Sidebar from "./Sidebar";
 import Header from "./SPHeader";
 import TaskPanel from "./TaskPanel";
 import { useGetStudentTasksQuery } from "../services/queries.js";
+import { useAuth } from "../hooks/useAuth";
 
-const StudentPanel = () => {
+const StudentPanel = ({ userData }) => {
   const [activeTab, setActiveTab] = useState("panel");
   const [taskStatus, setTaskStatus] = useState("pending");
   const [recentlySubmittedTasks, setRecentlySubmittedTasks] = useState([]);
-  const studentId = "std_2"; // Get this from your auth context
+  
+  // Use the authenticated user data passed from the parent component
+  // or get it directly using the useAuth hook
+  const { user } = useAuth("student");
+  const authenticatedUser = userData || user;
+  
+  // Extract the student ID from the user object
+  // Adjust the path based on your actual user object structure
+  const studentId = authenticatedUser?.student?.id ;
+  const userId = authenticatedUser?.user?.id;
+
+  // console.log("Student ID:", authenticatedUser);
 
   const { isPending, isSuccess, data, refetch } = useGetStudentTasksQuery(taskStatus, studentId);
 
@@ -35,6 +47,7 @@ const StudentPanel = () => {
   };
 
   if (isPending) return <div>Loading...</div>;
+  if (!studentId) return <div>Student information not available</div>;
 
   if (isSuccess) {
     // If we're viewing submitted tasks, we should see all submitted tasks including recent ones

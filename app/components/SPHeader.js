@@ -53,7 +53,7 @@ const Header = ({ onStatusChange }) => {
                     {isOpen && (
                         <div className="absolute z-10 mt-1 w-full bg-white rounded-md shadow-lg">
                             <div className="py-1">
-                                {["Pending", "Submitted", "Graded"].map((task) => (
+                                {["Pending", "Submitted"].map((task) => (
                                     <button
                                         key={task}
                                         onClick={() => handleSelectTask(task)}

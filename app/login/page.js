@@ -46,20 +46,20 @@ const Login = () => {
         setIsLoading(true);
         
         try {
-            const result = await loginUser(email, password, role);
+            // The loginUser function already returns the user data on success
+            // or throws an error on failure
+            const userData = await loginUser(email, password, role);
+
+            // console.log('User data:', userData);
             
-            if (result.success) {
-                // Redirect based on role
-                if (role === 'teacher') {
-                    router.push('/teacherPanel');
-                } else {
-                    router.push('/studentPanel');
-                }
+            // If we get here, login was successful
+            if (role === 'teacher') {
+                router.push('/teacherPanel');
             } else {
-                setLoginError(result.message || 'Login failed. Please check your credentials.');
+                router.push('/studentPanel');
             }
         } catch (error) {
-            setLoginError('An unexpected error occurred. Please try again.');
+            setLoginError(error.message || 'Login failed. Please check your credentials.');
             console.error('Login error:', error);
         } finally {
             setIsLoading(false);

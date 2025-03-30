@@ -10,18 +10,18 @@ export async function loginUser(email, password, role) {
     });
     
     if (response.data.success) {
-      // Store the complete user data including teacherSubjects
       localStorage.setItem("user", JSON.stringify(response.data.data));
       return response.data.data;
     } else {
       throw new Error(response.data.message || 'Login failed');
     }
   } catch (error) {
-    console.error('Login error:', error);
-    throw error;
+    
+      // Something happened in setting up the request
+      throw new Error('Login request failed. Please try again.');
+    
   }
 }
-
 export function getCurrentUser() {
   if (typeof window === "undefined") return null;
   

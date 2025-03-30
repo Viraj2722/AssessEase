@@ -2,16 +2,19 @@ import axios from "axios";
 import { API_URL } from "../lib/utils.js";
 import { useQuery } from "@tanstack/react-query";
 
-export function useGetStudentDashboardQuery(userId) {
+// Example of what your query function might look like
+export const useGetStudentDashboardQuery = (userId) => {
   return useQuery({
-    queryKey: ["getStudentDashboard"],
+    queryKey: ['studentDashboard', userId],
     queryFn: async () => {
-      return (await axios.get(`${API_URL}/student/dashboard/${userId}`)).data;
+      if (!userId) throw new Error('User ID is required');
+      const response = await axios.get(`${API_URL}/student/dashboard/${userId}`);
+      return response.data;
     },
-    refetchOnWindowFocus: false,
-    retry: false,
+    enabled: !!userId // Only run the query if userId exists
   });
-}
+};
+
 
 export function useGetStudentTasksQuery(status, studentId) {
   return useQuery({
@@ -35,6 +38,8 @@ export function useGetTeacherDashboardQuery(semester, subjectId, division, taskI
 }
 
 export function useGetTeacherStudentsListQuery(semester, subjectId, division, taskId) {
+
+  // console.log("semester",semester, subjectId, division, taskId);
   return useQuery({
     queryKey: ["getTeacherStudentsList", semester, subjectId, division, taskId],
     queryFn: async () => {
@@ -71,12 +76,12 @@ export function useGetStudentFileQuery(key) {
 
 export function useGetTeacherTasksQuery(semester, subjectId, division) {
 
-  
+  console.log("final ",semester, subjectId, division);
   return useQuery({
     queryKey: ["getTeacherTasks", semester, subjectId, division],
     queryFn: async () => {
       if (!semester || !subjectId || !division) return [];
-      
+
       return (await axios.get(
         `${API_URL}/teacher/tasks?semester=${semester}&subjectId=${subjectId}&division=${division}`
       )).data;
@@ -94,7 +99,7 @@ export function useGetSubmissionByFilePathQuery(filePath) {
     queryKey: ["getSubmissionByFilePath", filePath],
     queryFn: async () => {
       if (!filePath) return null;
-      
+
       return (await axios.get(
         `${API_URL}/submission/id-by-filepath/${encodeURIComponent(filePath)}`
       )).data;

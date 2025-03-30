@@ -1,8 +1,11 @@
 import { useEffect } from 'react';
 import { useGetTeacherStudentsListQuery } from '../services/queries';
 import { FileText } from 'lucide-react';
+import { data } from 'react-router-dom';
 
 const StudentList = ({ taskId, semester, subjectId, division, onViewPdf, onUpdatePendingCount }) => {
+   
+  
     const { data: studentData, isLoading } = useGetTeacherStudentsListQuery(
         semester,
         "sub_1",
@@ -10,6 +13,10 @@ const StudentList = ({ taskId, semester, subjectId, division, onViewPdf, onUpdat
         taskId
     );
 
+
+   
+  
+    // Use useEffect to update pending counts when data is loaded
     // Calculate and report pending counts when data is loaded
     useEffect(() => {
         if (studentData?.data) {
@@ -26,7 +33,7 @@ const StudentList = ({ taskId, semester, subjectId, division, onViewPdf, onUpdat
 
     if (isLoading) return <div>Loading students...</div>;
 
-    console.log('Student data:', studentData);
+    // console.log('Student data:', studentData);
 
     return (
         <table className="min-w-full divide-y divide-gray-200">

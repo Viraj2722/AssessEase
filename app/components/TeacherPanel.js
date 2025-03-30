@@ -64,12 +64,15 @@ const TeacherPanel = () => {
     // Query tasks based on selected filters
     const { data: taskData, isLoading } = useGetTeacherTasksQuery(
         selectedSemester ? getSemesterNumber(selectedSemester) : null,
-        selectedSubjectId || (teacherSubjects[0]?.subjectId),
+        selectedSubjectId || (teacherSubjects[1]?.subjectId),
         selectedClass ? getDivisionLetter(selectedClass) : null
     );
-    console.log("Selected Semester:", selectedSubjectId);
+    // console.log("Selected Semester:", teacherSubjects);
 
-    console.log("Task Data:", taskData);
+    console.log("task data is ",taskData)
+    // console.log("Selected Semester:", selectedSubjectId);
+
+    // console.log("Task Data:", taskData);
     useEffect(() => {
         if (taskData?.data) {
             setTasks(taskData.data);

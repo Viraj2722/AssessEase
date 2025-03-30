@@ -4,6 +4,8 @@ import { useMutation } from "@tanstack/react-query";
 
 export function useAddTaskMutation() {
   return useMutation({
+
+
     mutationKey: ["addTask"],
     mutationFn: async (data) => {
       const taskData = {
@@ -16,6 +18,7 @@ export function useAddTaskMutation() {
         division: data.division
       };
 
+      console.log("Task data:", taskData);
       return (
         await axios.post(`${API_URL}/teacher/addTask`, taskData, {
           headers: { "Content-Type": "application/json" },
