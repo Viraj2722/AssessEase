@@ -38,17 +38,19 @@ const TaskList = ({ tasks, onEditTask, onDeleteTask, onGenerateExcel, onViewPdf,
     const handleGenerateExcel = async (task) => {
         try {
             setGeneratingExcel(true);
-
+    
             console.log('Generating Excel for task:', task);
-            
             
             const response = await fetch(`${API_URL}/teacher/generate-report/${task.taskId}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch report data');
             }
-            const reportData = await response.json();
-
-            console.log('Report data:', reportData , reportData.length);
+            const responseData = await response.json();
+            
+            // Extract the actual report data array from the response
+            const reportData = responseData.data;
+    
+            console.log('Report data:', reportData, reportData.length);
             
             if (reportData && reportData.length > 0) {
                 const fileName = generateExcelReport(reportData, task.title);
@@ -63,6 +65,7 @@ const TaskList = ({ tasks, onEditTask, onDeleteTask, onGenerateExcel, onViewPdf,
             setGeneratingExcel(false);
         }
     };
+    
 
     return (
         <div className="space-y-4 mt-4">

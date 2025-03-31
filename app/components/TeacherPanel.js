@@ -39,7 +39,7 @@ const TeacherPanel = () => {
 
     // Get available subjects for this teacher
     const teacherSubjects = user?.teacherSubjects || [];
-    
+
     // Log the available subjects for debugging
     // console.log("Available teacher subjects:", teacherSubjects);
 
@@ -67,7 +67,7 @@ const TeacherPanel = () => {
             setSelectedSubjectId(firstSubject.subjectId);
             setSelectedTeacherSubjectId(firstSubject.id);
             setSelectedClass(`Division ${firstSubject.division}`);
-            
+
             // console.log("Initial selection:", {
             //     semester: `Semester ${firstSubject.semester}`,
             //     subject: firstSubject.subjectName,
@@ -102,13 +102,13 @@ const TeacherPanel = () => {
         // Find the matching subject in teacherSubjects
         const subject = teacherSubjects.find(s => s.subjectName === subjectName);
         console.log("Found subject:", subject);
-        
+
         if (subject) {
             setSelectedSubjectId(subject.subjectId);
             setSelectedTeacherSubjectId(subject.id);
             setSelectedSemester(`Semester ${subject.semester}`);
             setSelectedClass(`Division ${subject.division}`);
-            
+
             // console.log("Updated selection:", {
             //     semester: `Semester ${subject.semester}`,
             //     subject: subject.subjectName,
@@ -133,7 +133,7 @@ const TeacherPanel = () => {
         try {
             const response = await mutation.mutateAsync(taskData);
             console.log("Task creation response:", response);
-            
+
             // Create a new task object that matches the structure expected by TaskList
             // This should match the structure of tasks returned by the API
             const newTask = {
@@ -150,10 +150,10 @@ const TeacherPanel = () => {
 
             console.log("Adding new task to UI:", newTask);
             setTasks([...tasks, newTask]);
-            
+
             // Close the modal after successful task addition
             setIsAddTaskModalOpen(false);
-            
+
             // Optionally, refetch the tasks to ensure UI is in sync with backend
             // This would require modifying your useGetTeacherTasksQuery to expose a refetch function
             // taskRefetch();
@@ -195,7 +195,7 @@ const TeacherPanel = () => {
         alert('Marks and comments saved!');
         setIsPdfModalOpen(false);
     };
-  
+
     // console.log('Tasks response:',selectedSemester,selectedSubjectId,selectedClass);
     const handleIntegrateExcel = async () => {
         // Validate that filters are selected
@@ -203,40 +203,47 @@ const TeacherPanel = () => {
             alert('Please select Semester, Subject, and Class before generating an integrated report');
             return;
         }
-        
+
         try {
             // Show loading state
             alert('Generating integrated report...');
-            
+
             // Get semester number and division letter
             const semesterNumber = getSemesterNumber(selectedSemester);
             const divisionLetter = getDivisionLetter(selectedClass);
-            
+
             // Fetch tasks for the selected filters - direct fetch instead of using a hook
+
+            console.log('Fetching tasks for filters:', selectedSemester, selectedSubjectId, selectedClass);
             const tasksResponse = await fetch(
                 `${API_URL}/tasks/by-filters?semester=${semesterNumber}&subjectId=${selectedSubjectId}&division=${divisionLetter}`
             );
-            
+
             if (!tasksResponse.ok) {
                 throw new Error(`Failed to fetch tasks: ${tasksResponse.status}`);
             }
-            
+
             const tasksData = await tasksResponse.json();
-            
+
             if (!tasksData.success || !tasksData.data || tasksData.data.length === 0) {
                 alert('No tasks found for the selected filters');
                 return;
             }
-            
+
             // Fetch report data for each task and combine
             const allReportData = [];
-            
+
             for (const task of tasksData.data) {
                 try {
+
                     const response = await fetch(`${API_URL}/teacher/generate-report/${task.taskId}`);
+                    console.log('Response status:', task.taskId);
                     if (response.ok) {
-                        const taskReportData = await response.json();
-                        
+                        const responseData = await response.json();
+    
+                        // Extract the actual data array from the response
+                        const taskReportData = responseData.data || [];
+
                         // Add task information to each record
                         const enhancedData = taskReportData.map(item => ({
                             ...item,
@@ -246,28 +253,28 @@ const TeacherPanel = () => {
                             dueDate: task.dueDate,
                             totalMarks: task.totalMarks
                         }));
-                        
+
                         allReportData.push(...enhancedData);
                     }
                 } catch (error) {
                     console.error(`Error fetching report for task ${task.taskId}:`, error);
                 }
             }
-            
+
             if (allReportData.length === 0) {
                 alert('No report data available for the selected tasks');
                 return;
             }
-            
+
             // Generate integrated Excel report
             const fileName = generateIntegratedExcelReport(
-                allReportData, 
+                allReportData,
                 `${selectedSubject}_${selectedSemester}_${selectedClass}`
             );
-            
+
             console.log(`Integrated Excel report generated: ${fileName}`);
             alert(`Report generated successfully: ${fileName}`);
-            
+
         } catch (error) {
             console.error('Failed to generate integrated Excel report:', error);
             alert('Failed to generate integrated report. Please try again.');
