@@ -6,6 +6,8 @@ import { X } from 'lucide-react';
 const AddTaskModal = ({ isOpen, onClose, onAddTask, selectedSubject }) => {
     const [taskType, setTaskType] = useState('');
 
+    console.log("Selected Subject:", selectedSubject);
+
     const handleSubmit = (e) => {
         e.preventDefault();
         if (taskType) {

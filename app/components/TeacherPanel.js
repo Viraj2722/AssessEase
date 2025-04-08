@@ -96,12 +96,12 @@ const TeacherPanel = () => {
 
     // Handle subject selection
     const handleSubjectSelect = (subjectName) => {
-        // console.log("Selected subject name:", subjectName);
+        console.log("Selected subject name:", subjectName);
         setSelectedSubject(subjectName);
 
         // Find the matching subject in teacherSubjects
         const subject = teacherSubjects.find(s => s.subjectName === subjectName);
-        console.log("Found subject:", subject);
+        console.log("Found subject details:", subject);
 
         if (subject) {
             setSelectedSubjectId(subject.subjectId);
@@ -109,13 +109,13 @@ const TeacherPanel = () => {
             setSelectedSemester(`Semester ${subject.semester}`);
             setSelectedClass(`Division ${subject.division}`);
 
-            // console.log("Updated selection:", {
-            //     semester: `Semester ${subject.semester}`,
-            //     subject: subject.subjectName,
-            //     subjectId: subject.subjectId,
-            //     teacherSubjectId: subject.id,
-            //     class: `Division ${subject.division}`
-            // });
+            console.log("Updated selection:", {
+                semester: `Semester ${subject.semester}`,
+                subject: subject.subjectName,
+                subjectId: subject.subjectId,
+                teacherSubjectId: subject.id,
+                class: `Division ${subject.division}`
+            });
         }
     };
 

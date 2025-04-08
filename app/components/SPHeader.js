@@ -34,11 +34,11 @@ const Header = ({ onStatusChange }) => {
 
     return (
         <header className="flex justify-between items-center mb-4 pb-3 border-b">
-            <div className="flex justify-between w-full">
+            <div className="flex-1 flex justify-between items-center">
                 <div className="relative" ref={dropdownRef}>
                     <button
                         onClick={() => setIsOpen(!isOpen)}
-                        className="flex gap-2 items-center bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                        className="flex gap-2 items-center bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg hover:shadow-md transition-all duration-300"
                     >
                         {selectedTask}
                         <svg
@@ -51,13 +51,13 @@ const Header = ({ onStatusChange }) => {
                         </svg>
                     </button>
                     {isOpen && (
-                        <div className="absolute z-10 mt-1 w-full bg-white rounded-md shadow-lg">
+                        <div className="absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-100">
                             <div className="py-1">
                                 {["Pending", "Submitted"].map((task) => (
                                     <button
                                         key={task}
                                         onClick={() => handleSelectTask(task)}
-                                        className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                                        className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
                                     >
                                         {task}
                                     </button>
@@ -68,8 +68,11 @@ const Header = ({ onStatusChange }) => {
                 </div>
                 <button
                     onClick={handleLogout}
-                    className="flex gap-2 items-center bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                    className="flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg hover:shadow-md transition-all duration-300"
                 >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
                     Logout
                 </button>
             </div>
