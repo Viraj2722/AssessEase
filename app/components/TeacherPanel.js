@@ -12,7 +12,9 @@ import { useAuth } from '../hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { generateIntegratedExcelReport } from '../utils/excelUtils';
 import { API_URL } from '../lib/utils';
-import { useGetTasksByFiltersQuery } from '../services/queries';
+import { useDeleteTaskMutation } from '../services/mutations';
+
+
 
 const TeacherPanel = () => {
     // Use authentication hook to get teacher data
@@ -44,6 +46,8 @@ const TeacherPanel = () => {
     // console.log("Available teacher subjects:", teacherSubjects);
 
     const mutation = useAddTaskMutation();
+
+
 
     const getSemesterNumber = (semesterText) => {
         const match = semesterText.match(/\d+$/);
@@ -134,19 +138,23 @@ const TeacherPanel = () => {
             const response = await mutation.mutateAsync(taskData);
             console.log("Task creation response:", response);
 
-            // Create a new task object that matches the structure expected by TaskList
-            // This should match the structure of tasks returned by the API
+
+
             const newTask = {
                 id: response.task.id,
+                taskId: response.task.id,  
                 type: taskType,
+                taskType: taskType,        
                 name: selectedSubject,
-                title: selectedSubject, // Add this if TaskList uses title
-                dueDate: new Date().toISOString(), // Use the full ISO string if that's what the API returns
-                date: new Date().toISOString().split('T')[0], // Keep this for compatibility
+                title: selectedSubject,
+                dueDate: new Date().toISOString(),
+                date: new Date().toISOString().split('T')[0],
                 totalMarks: 20,
-                division: selectedClass,
-                semester: selectedSemester
+                division: getDivisionLetter(selectedClass),
+                semester: getSemesterNumber(selectedSemester),
+                teacherSubjectId: selectedTeacherSubjectId  // This is needed for StudentList
             };
+
 
             console.log("Adding new task to UI:", newTask);
             setTasks([...tasks, newTask]);
@@ -154,9 +162,6 @@ const TeacherPanel = () => {
             // Close the modal after successful task addition
             setIsAddTaskModalOpen(false);
 
-            // Optionally, refetch the tasks to ensure UI is in sync with backend
-            // This would require modifying your useGetTeacherTasksQuery to expose a refetch function
-            // taskRefetch();
         } catch (error) {
             console.error("Failed to add task:", error);
         }
@@ -168,8 +173,28 @@ const TeacherPanel = () => {
         ));
     };
 
-    const handleDeleteTask = (taskId) => {
-        setTasks(tasks.filter(task => task.id !== taskId));
+    const deleteTaskMutation = useDeleteTaskMutation();
+
+    const handleDeleteTask = async (taskId) => {
+        if (!taskId) {
+            console.error("Task ID is required for deletion");
+            return;
+        }
+
+        if (window.confirm("Are you sure you want to delete this task? This will also delete all submissions and marks associated with this task.")) {
+            try {
+                await deleteTaskMutation.mutateAsync(taskId);
+
+                // Update the UI by removing the deleted task
+                setTasks(tasks.filter(task => task.taskId !== taskId));
+
+                // Show success message
+                alert("Task deleted successfully");
+            } catch (error) {
+                console.error("Failed to delete task:", error);
+                alert("Failed to delete task. Please try again.");
+            }
+        }
     };
 
     const handleGenerateExcel = (taskId) => {
@@ -240,7 +265,7 @@ const TeacherPanel = () => {
                     console.log('Response status:', task.taskId);
                     if (response.ok) {
                         const responseData = await response.json();
-    
+
                         // Extract the actual data array from the response
                         const taskReportData = responseData.data || [];
 

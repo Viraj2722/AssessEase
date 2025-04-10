@@ -20,7 +20,7 @@ export function useAddTaskMutation() {
       };
 
       console.log("Task data:", taskData);
-      
+
 
       return (
         await axios.post(`${API_URL}/teacher/addTask`, taskData, {
@@ -61,7 +61,7 @@ export function useSaveMarksMutation() {
     mutationKey: ["saveMarks"],
     mutationFn: async ({ submissionId, marksData, teacherId }) => {
       // console.log("Mutation received:", { submissionId, marksData, teacherId });
-      
+
       // Validate required data
       if (!submissionId) {
         throw new Error("submissionId is required");
@@ -72,7 +72,7 @@ export function useSaveMarksMutation() {
       if (!marksData.marks || Object.keys(marksData.marks).length === 0) {
         throw new Error("marks are required");
       }
-      
+
       // Convert marks object to array of question-mark pairs
       const marksArray = Object.entries(marksData.marks).map(([questionKey, marksObtained]) => ({
         submissionId,
@@ -81,7 +81,7 @@ export function useSaveMarksMutation() {
         comments: marksData.comments || "",
         markedBy: teacherId
       }));
-      
+
       console.log("Sending marks array:", marksArray);
 
       try {
@@ -95,6 +95,25 @@ export function useSaveMarksMutation() {
         console.error("Error response:", error.response?.data);
         throw error;
       }
+    },
+    retry: false,
+  });
+}
+
+
+export function useDeleteTaskMutation() {
+  return useMutation({
+    mutationKey: ["deleteTask"],
+    mutationFn: async (taskId) => {
+      if (!taskId) {
+        throw new Error("taskId is required");
+      }
+
+      return (
+        await axios.delete(`${API_URL}/teacher/task/${taskId}`, {
+          headers: { "Content-Type": "application/json" },
+        })
+      ).data;
     },
     retry: false,
   });

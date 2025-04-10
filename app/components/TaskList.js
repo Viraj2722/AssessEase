@@ -109,13 +109,7 @@ const TaskList = ({ tasks, onEditTask, onDeleteTask, onGenerateExcel, onViewPdf,
                         </div>
 
                         <div className="flex gap-2 ml-4">
-                            <button
-                                onClick={() => onEditTask(task)}
-                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
-                                title="Edit Task"
-                            >
-                                <Edit size={18} />
-                            </button>
+                           
 
                             <button
                                 onClick={() => onDeleteTask(task.taskId)}
